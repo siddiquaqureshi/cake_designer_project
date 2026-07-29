@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ETHNC-style design system: flat black/white/grey chrome, uppercase
+   letter-spaced type, sharp edges. Cake content (flavors/frosting colors)
+   stays full-color -- only the site "chrome" (nav, buttons, cards, type)
+   goes monochrome. */
+@theme {
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #111111;
+  --color-ink-soft: #6b6b6b;
+  --color-line: #dcdcdc;
+  --color-line-soft: #ececec;
+  --color-paper: #ffffff;
+  --color-bone: #f7f6f4;
+
+  /* kept for cake-content rendering only (frosting/flavor UI still uses
+     a touch of warmth for selected states) */
+  --color-rose: #111111;
+  --color-rose-dark: #000000;
+  --color-rose-light: #dcdcdc;
+  --color-blush: #f7f6f4;
+  --color-blush-deep: #ececec;
+  --color-cream: #ffffff;
+  --color-butter: #c9a44a;
+  --color-butter-dark: #a8863a;
+  --color-pistachio: #4a7a5a;
+  --color-lilac: #6b6b6b;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
+
+.tracked {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.tracked-xl {
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* neutral backdrop for the cake stage -- replaces the old candy-striped
+   bakery shelf, which read too playful for this editorial look */
+.shelf-bg {
+  background-color: var(--color-bone);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop-in { animation: popIn 0.3s ease-out; }
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; transform: scaleY(1) rotate(-1deg); }
+  50% { opacity: 0.85; transform: scaleY(0.94) rotate(1deg); }
+}
+.flame-flicker { animation: flicker 0.6s ease-in-out infinite; transform-origin: bottom center; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 0; }
+::-webkit-scrollbar-track { background: transparent; }
