@@ -34,14 +34,14 @@ export default function Navbar() {
       <header className="fixed top-0 inset-x-0 z-50">
         {/* promo strip */}
         <div className="h-8 flex items-center justify-center bg-ink text-white text-center text-[11px] tracked px-4">
-          Cash on Delivery available &middot; Free delivery on orders over Rs 5,000
+          Cash on Delivery available &middot; Free delivery on orders over Rs 2
+          \,000
         </div>
 
         {/* main nav */}
         <div
-          className={`h-16 flex items-center transition-colors duration-300 ${
-            isHomeTop ? "bg-transparent" : "bg-paper border-b border-line-soft"
-          }`}
+          className={`h-16 flex items-center transition-colors duration-300 ${isHomeTop ? "bg-transparent" : "bg-paper border-b border-line-soft"
+            }`}
         >
           <nav className="max-w-7xl mx-auto w-full flex items-center justify-between px-4 sm:px-8">
             <div className={`flex items-center gap-6 tracked text-xs ${textColor}`}>

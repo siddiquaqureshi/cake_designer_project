@@ -51,7 +51,7 @@ export default function Home() {
     dispatch({ type: "LOAD", payload: presetToCake(item.preset) });
     navigate("/decorate/toppings");
   }
-
+    
   return (
     <div>
       {/* Hero: full viewport, flat black/white overlay chrome on top of the video */}
