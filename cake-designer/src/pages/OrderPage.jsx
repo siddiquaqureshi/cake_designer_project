@@ -75,8 +75,9 @@ export default function OrderPage() {
 
   function validate() {
     const e = {};
+    const effectiveCity = form.city || form.cityLine;
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (!form.city) e.city = "Please select city from dropdown";
+    if (!effectiveCity) e.city = "Please select city or enter city below";
     if (!form.firstName) e.firstName = "Required";
     if (!form.lastName) e.lastName = "Required";
     if (!form.address) e.address = "Required";
@@ -95,7 +96,7 @@ export default function OrderPage() {
     try {
       const order = await placeOrder({
         cake,
-        customer: form,
+        customer: { ...form, city: form.city || form.cityLine },
         shipping,
         payment,
         coupon: couponResult?.code || null,
@@ -119,7 +120,8 @@ export default function OrderPage() {
         }
       }
 
-      setPlaced({ ...order, id: order.order_id || order.id });
+      const orderId = order.order_id || order.id || `LOCAL-${Date.now()}`;
+      navigate(`/order/success?order_id=${orderId}&payment_method=${payment}`);
     } catch (err) {
       console.error(err);
       setSubmitError(err.message || "Failed to place order");
@@ -289,7 +291,13 @@ export default function OrderPage() {
           disabled={placing}
           className="py-4 bg-ink text-white tracked text-sm hover:bg-black transition-colors disabled:opacity-60"
         >
-          {placing ? "Placing order…" : `Pay ${formatPKR(total)}`}
+          {placing
+            ? payment === "cod"
+              ? "Confirming order…"
+              : "Placing order…"
+            : payment === "cod"
+            ? "Confirm Order"
+            : `Pay ${formatPKR(total)}`}
         </button>
       </div>
 
