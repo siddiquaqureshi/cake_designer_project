@@ -34,8 +34,7 @@ export default function Navbar() {
       <header className="fixed top-0 inset-x-0 z-50">
         {/* promo strip */}
         <div className="h-8 flex items-center justify-center bg-ink text-white text-center text-[11px] tracked px-4">
-          Cash on Delivery available &middot; Free delivery on orders over Rs 2
-          \,000
+          Cash on Delivery available &middot; Free delivery on orders over Rs 2,000
         </div>
 
         {/* main nav */}
