@@ -93,7 +93,7 @@ export const STEP_ORDER = [
 export function findById(list, id) {
   if (!list || id == null) return null;
   const target = String(id).toLowerCase();
-  return list.find((item) => {
+  const match = list.find((item) => {
     if (!item) return false;
     if (String(item.id).toLowerCase() === target) return true;
     if (item.localId && String(item.localId).toLowerCase() === target) return true;
@@ -104,4 +104,11 @@ export function findById(list, id) {
     if (item.cake_base_id && String(item.cake_base_id).toLowerCase() === target) return true;
     return false;
   });
+  if (match) return match;
+
+  const num = Number(id);
+  if (!isNaN(num) && num >= 1 && num <= list.length) {
+    return list[num - 1];
+  }
+  return null;
 }

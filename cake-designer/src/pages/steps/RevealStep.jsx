@@ -7,7 +7,8 @@ import { saveWishlistItem } from "../../api/client";
 import CakePreview from "../../components/CakePreview";
 import { priceForCake, formatPKR } from "../../utils/pricing";
 
-export default function RevealStep() {
+export default function RevealStep(props) {
+  const { options } = props;
   const { cake } = useCake();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function RevealStep() {
     }
     setHeartBusy(true);
     try {
-      await saveWishlistItem(user.email, { ...cake, price: priceForCake(cake), savedAt: Date.now() });
+      await saveWishlistItem(user.email, { ...cake, price: priceForCake(cake, options), savedAt: Date.now() });
       setHearted(true);
     } finally {
       setHeartBusy(false);
@@ -48,10 +49,10 @@ export default function RevealStep() {
       <h2 className="font-display tracked-xl text-3xl sm:text-4xl text-ink mb-6">Cak&eacute;</h2>
 
       <div className="bg-bone shelf-bg p-8 mb-6 border border-line">
-        <CakePreview cake={cake} previewMode />
+        <CakePreview cake={cake} options={options} previewMode />
       </div>
 
-      <p className="tracked text-lg text-ink mb-6">{formatPKR(priceForCake(cake))} total</p>
+      <p className="tracked text-lg text-ink mb-6">{formatPKR(priceForCake(cake, options))} total</p>
 
       <div className="flex flex-wrap gap-3 justify-center">
         <button

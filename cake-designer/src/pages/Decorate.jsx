@@ -121,7 +121,7 @@ export default function Decorate() {
       </div>
 
       {step === "reveal" ? (
-        <RevealStep />
+        <RevealStep options={options} />
       ) : (
       <div className="flex-1 grid lg:grid-cols-[1fr_minmax(280px,420px)] gap-px bg-line mt-6 mx-4 sm:mx-8 mb-8 border border-line">
         {/* live cake stage */}

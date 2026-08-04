@@ -306,42 +306,52 @@ export default function OrderPage() {
         <h3 className="font-display tracked text-sm text-ink mb-4 pb-2 border-b border-line">Order summary</h3>
 
         <div className="flex gap-3 items-center bg-white p-3 mb-4 border border-line">
-          {isCustomOrder ? (
+          {cake.presetImage || cake.referenceImage ? (
             <>
-              <div className="w-16 h-16 shrink-0 border border-line overflow-hidden">
-                <img src={cake.referenceImage} alt="Your uploaded reference" className="w-full h-full object-cover" />
+              <div className="w-20 h-20 shrink-0 border border-line overflow-hidden bg-bone">
+                <img
+                  src={cake.presetImage || cake.referenceImage}
+                  alt={cake.presetName || "Selected Cake"}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="flex-1">
-                <p className="tracked text-xs text-ink">Custom Design (Uploaded Photo)</p>
-                <p className="text-xs text-ink-soft mt-1">Final price confirmed after our team reviews your reference image</p>
+              <div className="flex-1 min-w-0">
+                <p className="tracked text-xs text-ink font-semibold uppercase truncate">
+                  {cake.presetName || "Custom Design (Uploaded Photo)"}
+                </p>
+                <p className="text-xs text-ink-soft mt-1 leading-snug">
+                  {cake.shape?.label || "Heart"} Shape &middot; {cake.layers?.label || "2 Layers"} &middot; {cake.fondant?.label || "Buttercream"} &middot; {cake.frosting?.label || "Vanilla Frosting"}
+                </p>
               </div>
             </>
           ) : (
             <>
-              <div className="scale-[0.4] origin-left -my-16 -mr-24">
-                <CakePreview cake={cake} previewMode />
+              <div className="w-20 h-20 shrink-0 border border-line overflow-hidden relative flex items-center justify-center bg-bone">
+                <div className="scale-[0.25] transform absolute">
+                  <CakePreview cake={cake} previewMode />
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="tracked text-xs text-ink">
+              <div className="flex-1 min-w-0">
+                <p className="tracked text-xs text-ink font-semibold uppercase truncate">
                   {cake.flavor?.label} {cake.shape?.label} Cake
                 </p>
-                <p className="text-xs text-ink-soft mt-1">
+                <p className="text-xs text-ink-soft mt-1 leading-snug">
                   {cake.layers?.label} &middot; {cake.fondant?.label} &middot; {cake.frosting?.label}
                 </p>
-                {cake.toppings.length > 0 && (
-                  <p className="text-xs text-ink-soft">
-                    Toppings: {cake.toppings.map((t) => findById(TOPPINGS, t.toppingId)?.label).join(", ")}
+                {cake.toppings?.length > 0 && (
+                  <p className="text-xs text-ink-soft truncate">
+                    Toppings: {cake.toppings.map((t) => findById(TOPPINGS, t.toppingId)?.label).filter(Boolean).join(", ")}
                   </p>
                 )}
-                {cake.candles.length > 0 && (
-                  <p className="text-xs text-ink-soft">
-                    Candles: {cake.candles.map((c) => (findById(CANDLES, c.candleId) || findById(SPARKLERS, c.candleId))?.label).join(", ")}
+                {cake.candles?.length > 0 && (
+                  <p className="text-xs text-ink-soft truncate">
+                    Candles: {cake.candles.map((c) => (findById(CANDLES, c.candleId) || findById(SPARKLERS, c.candleId))?.label).filter(Boolean).join(", ")}
                   </p>
                 )}
               </div>
             </>
           )}
-          <p className="text-sm text-ink whitespace-nowrap">{formatPKR(subtotal)}</p>
+          <p className="text-sm font-semibold text-ink whitespace-nowrap">{formatPKR(subtotal)}</p>
         </div>
 
         <div className="flex gap-2 mb-4">

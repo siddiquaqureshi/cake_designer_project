@@ -14,19 +14,43 @@ const MOST_LOVED = [
     name: "Pink Butterfly Tier",
     image: "/assets/most-loved/butterfly-cake.jpg",
     priceFrom: 3200,
-    preset: { shape: "heart", flavor: "strawberry", layers: 2, fondant: "blush", frosting: "whipped" },
+    preset: {
+      shape: "heart",
+      flavor: "strawberry",
+      layers: 2,
+      fondant: "blush",
+      frosting: "whipped",
+      name: "Pink Butterfly Tier",
+      image: "/assets/most-loved/butterfly-cake.jpg",
+    },
   },
   {
     name: "Heart Confetti Cake",
     image: "/assets/most-loved/heart-dots-cake.jpg",
     priceFrom: 2800,
-    preset: { shape: "round", flavor: "vanilla", layers: 2, fondant: "ivory", frosting: "whipped" },
+    preset: {
+      shape: "heart",
+      flavor: "strawberry",
+      layers: 2,
+      fondant: "blush",
+      frosting: "whipped",
+      name: "Heart Confetti Cake",
+      image: "/assets/most-loved/heart-dots-cake.jpg",
+    },
   },
   {
     name: "Butterfly & Candle Bloom",
     image: "/assets/most-loved/pink-butterfly-candle-cake.jpg",
     priceFrom: 3000,
-    preset: { shape: "round", flavor: "strawberry", layers: 2, fondant: "blush", frosting: "whipped" },
+    preset: {
+      shape: "heart",
+      flavor: "strawberry",
+      layers: 2,
+      fondant: "blush",
+      frosting: "whipped",
+      name: "Butterfly & Candle Bloom",
+      image: "/assets/most-loved/pink-butterfly-candle-cake.jpg",
+    },
   },
 ];
 
@@ -40,6 +64,8 @@ function presetToCake(preset) {
     toppings: [],
     text: { value: "", x: 50, y: 18, rotation: 0, freehandPaths: [] },
     candles: [],
+    presetName: preset.name,
+    presetImage: preset.image,
   };
 }
 
@@ -47,11 +73,11 @@ export default function Home() {
   const navigate = useNavigate();
   const { dispatch } = useCake();
 
-  function startWithPreset(item) {
+  function orderDirectly(item) {
     dispatch({ type: "LOAD", payload: presetToCake(item.preset) });
-    navigate("/decorate/toppings");
+    navigate("/order");
   }
-    
+
   return (
     <div>
       {/* Hero: full viewport, flat black/white overlay chrome on top of the video */}
@@ -90,27 +116,38 @@ export default function Home() {
       <section id="most-loved" className="max-w-7xl mx-auto px-4 sm:px-8 py-16 sm:py-24 scroll-mt-24">
         <div className="flex items-end justify-between mb-8 border-b border-line pb-4">
           <h2 className="font-display tracked-xl text-2xl sm:text-3xl">Most Loved</h2>
-          <p className="text-ink-soft text-xs tracked hidden sm:block">Tap to start decorating a similar cake</p>
+          <p className="text-ink-soft text-xs tracked hidden sm:block">Hover over any cake to order directly</p>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-px bg-line">
+        <div className="grid sm:grid-cols-3 gap-6">
           {MOST_LOVED.map((item) => (
-            <button
+            <div
               key={item.name}
-              onClick={() => startWithPreset(item)}
-              className="group relative bg-bone text-left overflow-hidden aspect-[3/4]"
+              className="group relative bg-bone text-left overflow-hidden aspect-[3/4] border border-line shadow-sm hover:shadow-lg transition-shadow duration-300"
             >
               <img
                 src={item.image}
                 alt={item.name}
                 className="absolute inset-0 w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col items-center text-center">
-                <p className="font-display tracked text-sm sm:text-base text-white">{item.name}</p>
-                <p className="text-xs text-white/80 mt-1">From {formatPKR(item.priceFrom)}</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent transition-opacity duration-300" />
+              
+              <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col items-center text-center">
+                <p className="font-display tracked text-base sm:text-lg text-white mb-1">{item.name}</p>
+                <p className="text-xs text-white/80 mb-4">From {formatPKR(item.priceFrom)}</p>
+
+                {/* Only "Order This" button on hover */}
+                <div className="w-full max-w-xs transition-all duration-300 sm:opacity-0 sm:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0">
+                  <button
+                    type="button"
+                    onClick={() => orderDirectly(item)}
+                    className="w-full py-3 px-6 bg-white text-ink text-xs font-bold tracked uppercase hover:bg-ink hover:text-white transition-colors duration-200 shadow-md"
+                  >
+                    Order This
+                  </button>
+                </div>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </section>
