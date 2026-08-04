@@ -25,6 +25,8 @@ export default function App() {
               <Route path="/order" element={<OrderPage />} />
               <Route path="/order/success" element={<OrderSuccess />} />
               <Route path="/order/cancel" element={<OrderCancel />} />
+              <Route path="/admin" element={<BakerDashboard />} />
+              <Route path="/baker" element={<BakerDashboard />} />
               <Route path="/admin/orders" element={<BakerDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

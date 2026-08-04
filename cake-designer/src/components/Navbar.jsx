@@ -7,14 +7,12 @@ import WishlistDrawer from "./WishlistDrawer";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const [authPortal, setAuthPortal] = useState("customer");
   const [showWishlist, setShowWishlist] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // The reference site's nav sits transparent over the hero video and only
-  // needs light (white) text there; every other screen (and the home page
-  // once scrolled past the hero) gets a solid white bar with dark text.
   const isHomeTop = location.pathname === "/" && !scrolled;
 
   useEffect(() => {
@@ -28,6 +26,7 @@ export default function Navbar() {
 
   const textColor = isHomeTop ? "text-white" : "text-ink";
   const mutedColor = isHomeTop ? "text-white/80" : "text-ink-soft";
+  const isStaff = user && ["baker", "admin"].includes(String(user.role || "").toLowerCase());
 
   return (
     <>
@@ -39,20 +38,24 @@ export default function Navbar() {
 
         {/* main nav */}
         <div
-          className={`h-16 flex items-center transition-colors duration-300 ${isHomeTop ? "bg-transparent" : "bg-paper border-b border-line-soft"
-            }`}
+          className={`h-16 flex items-center transition-colors duration-300 ${
+            isHomeTop ? "bg-transparent" : "bg-paper border-b border-line-soft"
+          }`}
         >
           <nav className="max-w-7xl mx-auto w-full flex items-center justify-between px-4 sm:px-8">
-            <div className={`flex items-center gap-6 tracked text-xs ${textColor}`}>
+            <div className={`flex items-center gap-5 tracked text-xs ${textColor}`}>
               <button onClick={() => navigate("/#most-loved")} className="hover:opacity-60 transition-opacity hidden sm:inline">
                 Most Loved
               </button>
               <button onClick={() => navigate("/decorate/shape")} className="hover:opacity-60 transition-opacity">
                 Order
               </button>
-              {user && ["Baker", "Admin"].includes(user.role) && (
-                <button onClick={() => navigate("/admin/orders")} className="hover:opacity-60 transition-opacity">
-                  Baker Dashboard
+              {isStaff && (
+                <button
+                  onClick={() => navigate("/admin/orders")}
+                  className="px-3 py-1 bg-ink text-white rounded hover:bg-black transition-colors font-semibold text-[11px] uppercase tracking-wider"
+                >
+                  Baker Dashboard &rarr;
                 </button>
               )}
             </div>
@@ -66,16 +69,41 @@ export default function Navbar() {
 
             <div className={`flex items-center gap-5 tracked text-xs ${textColor}`}>
               {user ? (
-                <div className="hidden sm:flex items-center gap-4">
-                  <span className={mutedColor}>Hi, {user.name?.split(" ")[0]}</span>
+                <div className="hidden sm:flex items-center gap-3">
+                  <span className={mutedColor}>
+                    Hi, {user.name?.split(" ")[0]}
+                    {isStaff && (
+                      <span className="ml-1 text-[10px] bg-ink text-white px-1.5 py-0.5 rounded font-mono uppercase">
+                        Admin
+                      </span>
+                    )}
+                  </span>
                   <button onClick={logout} className="hover:opacity-60 transition-opacity">
                     Log out
                   </button>
                 </div>
               ) : (
-                <button onClick={() => setShowAuth(true)} className="hover:opacity-60 transition-opacity">
-                  Login
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setAuthPortal("customer");
+                      setShowAuth(true);
+                    }}
+                    className="hover:opacity-60 transition-opacity"
+                  >
+                    Login
+                  </button>
+                  <span className="opacity-40">|</span>
+                  <button
+                    onClick={() => {
+                      setAuthPortal("admin");
+                      setShowAuth(true);
+                    }}
+                    className="hover:opacity-60 transition-opacity font-semibold underline underline-offset-4"
+                  >
+                    Admin Login
+                  </button>
+                </div>
               )}
 
               <button
@@ -91,7 +119,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {showAuth && <LoginModal onClose={() => setShowAuth(false)} />}
+      {showAuth && <LoginModal onClose={() => setShowAuth(false)} defaultPortal={authPortal} />}
       {showWishlist && <WishlistDrawer onClose={() => setShowWishlist(false)} />}
     </>
   );
