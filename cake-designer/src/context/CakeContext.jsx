@@ -7,7 +7,7 @@ const initialCake = {
   fondant: null,
   frosting: null,
   toppings: [], // [{ toppingId, x, y }]
-  text: { value: "", x: 50, y: 50, rotation: 0, freehandPaths: [] }, // x:50, y:50 -> centered on top frosting surface
+  text: { value: "", color: "#7A2E42", x: 50, y: 50, rotation: 0, freehandPaths: [] }, // x:50, y:50 -> centered on top frosting surface
   candles: [], // [{ candleId, x, y, kind: "candle" | "sparkler" }]
   referenceImage: null, // data URL when the person uploads their own design instead of building one
 };
@@ -48,6 +48,8 @@ function cakeReducer(state, action) {
 
     case "SET_TEXT":
       return { ...state, text: { ...state.text, value: action.payload } };
+    case "SET_TEXT_COLOR":
+      return { ...state, text: { ...state.text, color: action.payload } };
     case "SET_TEXT_POSITION":
       return { ...state, text: { ...state.text, x: action.payload.x, y: action.payload.y } };
     case "SET_TEXT_ROTATION":

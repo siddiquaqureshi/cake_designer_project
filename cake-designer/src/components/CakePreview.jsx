@@ -210,19 +210,29 @@ function CakeBody({ cake, materials, topY }) {
   const isGlossy = cake.frosting?.finish === "glossy";
 
   const drips = useMemo(() => {
-    if (!isGlossy) return [];
-    const count = 12 + Math.floor(Math.random() * 4);
-    const r = 0.96;
+    if (!isGlossy || !shape) return [];
+    const count = 14 + Math.floor(Math.random() * 4);
+    let perimeter = [];
+    try {
+      perimeter = shape.getSpacedPoints ? shape.getSpacedPoints(200) : [];
+    } catch {
+      perimeter = [];
+    }
+    if (!perimeter || perimeter.length === 0) return [];
+
+    const totalPts = perimeter.length;
     return Array.from({ length: count }).map((_, i) => {
-      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.15;
+      const idx = Math.floor(((i + Math.random() * 0.8) / count) * totalPts) % totalPts;
+      const pt = perimeter[idx];
+      const scale = 0.97;
       return {
-        pos: [Math.cos(angle) * r, totalHeight / 2, Math.sin(angle) * r],
+        pos: [pt.x * scale, totalHeight / 2, -pt.y * scale],
         length: 0.12 + Math.random() * 0.18,
         radius: 0.014 + Math.random() * 0.008,
         sway: (Math.random() - 0.5) * 0.05,
       };
     });
-  }, [isGlossy, totalHeight]);
+  }, [isGlossy, shape, totalHeight]);
 
   return (
     <group>
@@ -359,21 +369,64 @@ function ChocolateTopping({ selected, onPointerDown }) {
   );
 }
 
-function SprinklesTopping({ colors }) {
+function generateSprinklePoint(shapeId) {
+  const sId = String(shapeId || "round").toLowerCase();
+  switch (sId) {
+    case "square": {
+      const px = (Math.random() - 0.5) * 1.72;
+      const pz = (Math.random() - 0.5) * 1.72;
+      return [px, pz];
+    }
+    case "rectangle": {
+      const px = (Math.random() - 0.5) * 2.36;
+      const pz = (Math.random() - 0.5) * 1.52;
+      return [px, pz];
+    }
+    case "triangle": {
+      const r1 = Math.sqrt(Math.random());
+      const r2 = Math.random();
+      const x2d = (1 - r1) * 0 + (r1 * (1 - r2)) * 0.84 + (r1 * r2) * (-0.84);
+      const y2d = (1 - r1) * 0.88 + (r1 * (1 - r2)) * (-0.82) + (r1 * r2) * (-0.82);
+      return [x2d, -y2d];
+    }
+    case "heart": {
+      for (let attempt = 0; attempt < 50; attempt++) {
+        const x = (Math.random() - 0.5) * 1.7;
+        const y = Math.random() * 1.8 - 0.9;
+        if (y <= 0.0) {
+          const maxW = (0.84 * (y + 0.88)) / 0.88;
+          if (y >= -0.88 && Math.abs(x) <= maxW) return [x, -y];
+        } else {
+          const dLeft = (x + 0.42) ** 2 + (y - 0.45) ** 2;
+          const dRight = (x - 0.42) ** 2 + (y - 0.45) ** 2;
+          if (dLeft <= 0.44 ** 2 || dRight <= 0.44 ** 2) return [x, -y];
+        }
+      }
+      return [0, 0];
+    }
+    case "round":
+    default: {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.sqrt(Math.random()) * 0.85;
+      return [Math.cos(angle) * r, Math.sin(angle) * r];
+    }
+  }
+}
+
+function SprinklesTopping({ colors, shapeId }) {
   const bits = useMemo(() => {
     const palette = colors?.length ? colors : ["#E8547B", "#4FA8E0", "#F5C93F", "#6FCB6F", "#B876D9", "#FF9F1C"];
     const count = 180;
     return Array.from({ length: count }).map((_, i) => {
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.sqrt(Math.random()) * 0.85;
+      const [px, pz] = generateSprinklePoint(shapeId);
       return {
-        pos: [Math.cos(angle) * r, 0.008 + Math.random() * 0.006, Math.sin(angle) * r],
+        pos: [px, 0.008 + Math.random() * 0.006, pz],
         rot: [Math.random() * 0.3, Math.random() * Math.PI * 2, Math.random() * 0.3],
         color: palette[i % palette.length],
         length: 0.022 + Math.random() * 0.012,
       };
     });
-  }, [colors]);
+  }, [colors, shapeId]);
 
   return (
     <group>
@@ -404,7 +457,7 @@ function DomeTopping({ color, selected, onPointerDown }) {
   );
 }
 
-function Topping3D({ type, color, colors, position, selected, onPointerDown }) {
+function Topping3D({ type, color, colors, shapeId, position, selected, onPointerDown }) {
   let body;
   switch (type) {
     case "strawberry":
@@ -421,7 +474,7 @@ function Topping3D({ type, color, colors, position, selected, onPointerDown }) {
       break;
     case "sprinkles":
     default:
-      body = <SprinklesTopping colors={colors} />;
+      body = <SprinklesTopping colors={colors} shapeId={shapeId} />;
       break;
   }
 
@@ -596,7 +649,8 @@ function Candle3D({ candleId, position, selected, onPointerDown, options }) {
 /* ------------------------------------------------------------------ *
  * 3D Dynamic Text Writing Layer
  * ------------------------------------------------------------------ */
-function TextDecal({ text, x, y, rotation, topY, onPointerDown, selected }) {
+function TextDecal({ text, color, x, y, rotation, topY, onPointerDown, selected }) {
+  const textColor = color || "#7A2E42";
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
@@ -609,7 +663,7 @@ function TextDecal({ text, x, y, rotation, topY, onPointerDown, selected }) {
     ctx.shadowOffsetY = 2;
 
     ctx.font = "600 52px Inter, sans-serif";
-    ctx.fillStyle = "#7A2E42";
+    ctx.fillStyle = textColor;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -617,7 +671,7 @@ function TextDecal({ text, x, y, rotation, topY, onPointerDown, selected }) {
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
     return tex;
-  }, [text]);
+  }, [text, textColor]);
 
   const [wx, , wz] = pctToWorld(x, y, topY);
   const textY = topY + 0.015;
@@ -639,13 +693,14 @@ function TextDecal({ text, x, y, rotation, topY, onPointerDown, selected }) {
   );
 }
 
-function FreehandDecal({ paths, topY }) {
+function FreehandDecal({ paths, color, topY }) {
+  const strokeColor = color || "#7A2E42";
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext("2d");
-    ctx.strokeStyle = "#7A2E42";
+    ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -664,7 +719,7 @@ function FreehandDecal({ paths, topY }) {
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
     return tex;
-  }, [paths]);
+  }, [paths, strokeColor]);
 
   return (
     <mesh position={[0, topY + 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -786,6 +841,7 @@ function Scene({
             type={def.geometry}
             color={def.color}
             colors={def.colors}
+            shapeId={cake.shape?.id || cake.shape?.label || "round"}
             position={[wx, topY, wz]}
             selected={drag?.kind === "topping" && drag?.index === i}
             onPointerDown={(e) => {
@@ -818,6 +874,7 @@ function Scene({
       {cake.text?.value && (
         <TextDecal
           text={cake.text.value}
+          color={cake.text.color}
           x={cake.text.x ?? 50}
           y={cake.text.y ?? 50}
           rotation={cake.text.rotation || 0}
@@ -831,7 +888,9 @@ function Scene({
       )}
 
       {/* Freehand Sketches */}
-      {cake.text?.freehandPaths?.length > 0 && <FreehandDecal paths={cake.text.freehandPaths} topY={topY} />}
+      {cake.text?.freehandPaths?.length > 0 && (
+        <FreehandDecal paths={cake.text.freehandPaths} color={cake.text.color} topY={topY} />
+      )}
 
       {/* Invisible Interaction Surface Plane */}
       <InteractionPlane
